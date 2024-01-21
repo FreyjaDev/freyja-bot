@@ -6,8 +6,8 @@
     "build": "tsc",
     "serve": "npm run build && node dist/main.js",
     "initCommands": "npm run serve -- --initCommands",
-    "lint": "pnpm dlx @biomejs/biome lint ./src/**/*.ts",
-    "fmt": "pnpm dlx @biomejs/biome format ./src/**/*.ts --write"
+    "lint": "pnpm dlx @biomejs/biome lint ./",
+    "fmt": "pnpm dlx @biomejs/biome format ./ --write"
   },
   "author": "",
   "license": "MIT",
