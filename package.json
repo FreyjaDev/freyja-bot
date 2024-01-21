@@ -4,8 +4,8 @@
   "description": "",
   "scripts": {
     "build": "tsc",
-    "serve": "npm run build && node dist/main.js",
-    "initCommands": "npm run serve -- --initCommands",
+    "serve": "pnpm run build && node dist/main.js",
+    "initCommands": "pnpm run serve -- --initCommands",
     "lint": "biome lint ./",
     "fmt": "biome format ./ --write"
   },
