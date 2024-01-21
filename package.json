@@ -5,7 +5,7 @@
   "scripts": {
     "build": "tsc",
     "serve": "pnpm run build && node dist/main.js",
-    "initCommands": "pnpm run serve -- --initCommands",
+    "initCommands": "pnpm run serve --initCommands",
     "lint": "biome lint ./",
     "fmt": "biome format ./ --write"
   },
