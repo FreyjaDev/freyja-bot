@@ -39,46 +39,50 @@ const commandBuilder = new SlashCommandBuilder()
 const executor = async (interaction: CommandInteraction): Promise<void> => {
   const commandGroup = interaction.options.data[0].name;
 
-  if(commandGroup === 'type') {
+  if (commandGroup === 'type') {
     await handleTypeCommand(interaction);
-  }
-  else {
+  } else {
     await interaction.reply('Command not found');
   }
 };
 
-const handleTypeCommand = async (interaction: CommandInteraction): Promise<void> => {
+const handleTypeCommand = async (
+  interaction: CommandInteraction,
+): Promise<void> => {
   const command = interaction.options.data[0].options?.[0].name;
 
   if (command === 'add') {
     await handleTypeAddCommand(interaction);
-  }
-  else if (command === 'delete') {
+  } else if (command === 'delete') {
     await handleTypeDeleteCommand(interaction);
-  }
-  else if (command === 'list') {
+  } else if (command === 'list') {
     await handleTypeListCommand(interaction);
-  }
-  else {
+  } else {
     await interaction.reply('Command not found');
   }
-}
+};
 
-const handleTypeAddCommand = async (interaction: CommandInteraction): Promise<void> => {
+const handleTypeAddCommand = async (
+  interaction: CommandInteraction,
+): Promise<void> => {
   const name = interaction.options.data[0].options?.[0].options?.[0].value;
 
   await interaction.reply(`Add Rating Type: ${name}`);
-}
+};
 
-const handleTypeDeleteCommand = async (interaction: CommandInteraction): Promise<void> => {
+const handleTypeDeleteCommand = async (
+  interaction: CommandInteraction,
+): Promise<void> => {
   const id = interaction.options.data[0].options?.[0].options?.[0].value;
 
   await interaction.reply(`Delete Rating Type: ${id}`);
-}
+};
 
-const handleTypeListCommand = async (interaction: CommandInteraction): Promise<void> => {
+const handleTypeListCommand = async (
+  interaction: CommandInteraction,
+): Promise<void> => {
   await interaction.reply('List Rating Types');
-}
+};
 
 export const ratingTypeCommands: Command = {
   commandBuilder,
