@@ -5,6 +5,7 @@
   "scripts": {
     "build": "tsc",
     "serve": "npm run build && node dist/main.js",
+    "initCommands": "npm run serve -- --initCommands",
     "lint": "eslint . --ext .ts",
     "fmt": "npm run lint -- --fix"
   },
@@ -12,10 +13,12 @@
   "license": "MIT",
   "dependencies": {
     "discord.js": "^14.14.1",
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "yargs": "^17.7.2"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
+    "@types/yargs": "^17.0.32",
     "@typescript-eslint/eslint-plugin": "^6.18.1",
     "@typescript-eslint/parser": "^6.18.1",
     "eslint": "^8.56.0",
