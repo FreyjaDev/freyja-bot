@@ -4,6 +4,8 @@ import yargs from "yargs";
 
 import { Bot } from "./common/bot";
 import { ratingTypeCommands } from "./common/commands/rating-type";
+import { gameCommands } from "./common/commands/game";
+import { guildCommands } from "./common/commands/guild";
 
 const args = yargs
 	.options({
@@ -33,7 +35,7 @@ process.on("SIGINT", () => {
 	}
 });
 
-const commands = [ratingTypeCommands];
+const commands = [ratingTypeCommands, gameCommands, guildCommands];
 
 const registerCommands = async (token: string) => {
 	const clientId = process.env.CLIENT_ID;
