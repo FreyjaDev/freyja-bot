@@ -6,8 +6,10 @@ import {
 import { APIEmbedField } from "discord.js/typings";
 
 import { Command } from "../interfaces/command";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import { RatingType } from "../interfaces/rating-type.interface";
+import { messages } from "../../constants/messages";
+import { enMessages } from "../../constants/messages/message-en";
 
 type Subcommand = "add" | "delete" | "list";
 
@@ -97,7 +99,7 @@ const handleTypeAddCommand = async (
 	});
 
 	if (response.status === 201) {
-		await interaction.editReply(`Add Rating Type: ${name}`);
+		await interaction.editReply(messages[interaction.locale].ratingTypeAdded ?? enMessages.ratingTypeAdded);
 	} else {
 		await interaction.editReply(`Failed to add Rating Type: ${name}`);
 	}
@@ -119,7 +121,7 @@ const handleTypeDeleteCommand = async (
 
 	try {
 		await axios.delete(`${url}/guild/${guildId}/rating-types/${id}`);
-		await interaction.editReply('The rating type is deleted.');
+		await interaction.editReply(messages[interaction.locale].ratingTypeDeleted ?? enMessages.ratingTypeDeleted);
 	} catch (e) {
 		await interaction.editReply('Failed to delete the rating type.');
 	}
