@@ -3,15 +3,15 @@ import {
 	ClientOptions,
 	Events,
 	CommandInteraction,
-	Interaction,
+	Interaction, ChatInputCommandInteraction
 } from "discord.js";
 
-import { Command } from "./interfaces/command";
+import { Command, CommandExecutor } from "./interfaces/command";
 
 export class Bot extends Client {
 	private readonly commandExecutors: Record<
 		string,
-		(interaction: CommandInteraction) => Promise<void>
+		CommandExecutor
 	> = {};
 
 	constructor(options: ClientOptions) {
@@ -43,7 +43,7 @@ export class Bot extends Client {
 	}
 
 	private async handleCommandInteraction(
-		interaction: CommandInteraction,
+		interaction: ChatInputCommandInteraction,
 	): Promise<void> {
 		const executor = this.commandExecutors[interaction.commandName];
 

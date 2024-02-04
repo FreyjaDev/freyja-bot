@@ -1,11 +1,13 @@
 import {
+	ChatInputCommandInteraction,
 	CommandInteraction,
 	SlashCommandBuilder,
-	SlashCommandSubcommandsOnlyBuilder,
+	SlashCommandSubcommandsOnlyBuilder
 } from "discord.js";
 
-// TODO: Add support for subcommand groups to the executor
+export type CommandExecutor = ((interaction: ChatInputCommandInteraction) => Promise<void>) | ((interaction: CommandInteraction) => Promise<void>);
+
 export interface Command {
 	commandBuilder: SlashCommandBuilder | SlashCommandSubcommandsOnlyBuilder;
-	executor: (interaction: CommandInteraction) => Promise<void>;
+	executor: CommandExecutor;
 }

@@ -1,9 +1,15 @@
-import { CommandInteraction, EmbedBuilder, SlashCommandBuilder } from "discord.js";
+import {
+	ChatInputCommandInteraction,
+	EmbedBuilder,
+	SlashCommandBuilder
+} from "discord.js";
 import { APIEmbedField } from "discord.js/typings";
 
 import { Command } from "../interfaces/command";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { RatingType } from "../interfaces/rating-type.interface";
+
+type Subcommand = "add" | "delete" | "list";
 
 const commandBuilder = new SlashCommandBuilder()
 	.setName("rating")
@@ -39,8 +45,8 @@ const commandBuilder = new SlashCommandBuilder()
 			),
 	);
 
-const executor = async (interaction: CommandInteraction): Promise<void> => {
-	const commandGroup = interaction.options.data[0].name;
+const executor = async (interaction: ChatInputCommandInteraction): Promise<void> => {
+	const commandGroup = interaction.options.getSubcommandGroup(true);
 
 	if (commandGroup === "type") {
 		await handleTypeCommand(interaction);
@@ -50,23 +56,30 @@ const executor = async (interaction: CommandInteraction): Promise<void> => {
 };
 
 const handleTypeCommand = async (
-	interaction: CommandInteraction,
+	interaction: ChatInputCommandInteraction,
 ): Promise<void> => {
-	const command = interaction.options.data[0].options?.[0].name;
+	try {
+		const command = interaction.options.getSubcommand(true) as Subcommand;
 
-	if (command === "add") {
-		await handleTypeAddCommand(interaction);
-	} else if (command === "delete") {
-		await handleTypeDeleteCommand(interaction);
-	} else if (command === "list") {
-		await handleTypeListCommand(interaction);
-	} else {
+		switch (command) {
+			case "add":
+				await handleTypeAddCommand(interaction);
+				break;
+			case "delete":
+				await handleTypeDeleteCommand(interaction);
+				break;
+			case "list":
+				await handleTypeListCommand(interaction);
+				break;
+		}
+	} catch (e) {
+		console.error(e);
 		await interaction.reply("Command not found");
 	}
 };
 
 const handleTypeAddCommand = async (
-	interaction: CommandInteraction,
+	interaction: ChatInputCommandInteraction,
 ): Promise<void> => {
 	const name = interaction.options.data[0].options?.[0].options?.[0].value;
 	const guildId = interaction.guildId
@@ -91,15 +104,29 @@ const handleTypeAddCommand = async (
 };
 
 const handleTypeDeleteCommand = async (
-	interaction: CommandInteraction,
+	interaction: ChatInputCommandInteraction,
 ): Promise<void> => {
-	const id = interaction.options.data[0].options?.[0].options?.[0].value;
+	const id = interaction.options.getString("id", true);
+	const guildId = interaction.guildId;
+	const url = process.env.FREYJA_API_URL;
 
-	await interaction.reply(`Delete Rating Type: ${id}`);
+	if (guildId === null || url === undefined) {
+		await interaction.reply('Oops! Cannot fetch your server id!')
+		return;
+	}
+
+	await interaction.deferReply();
+
+	try {
+		await axios.delete(`${url}/guild/${guildId}/rating-types/${id}`);
+		await interaction.editReply('The rating type is deleted.');
+	} catch (e) {
+		await interaction.editReply('Failed to delete the rating type.');
+	}
 };
 
 const handleTypeListCommand = async (
-	interaction: CommandInteraction,
+	interaction: ChatInputCommandInteraction,
 ): Promise<void> => {
 	const guildId = interaction.guildId
 	const url = process.env.FREYJA_API_URL
