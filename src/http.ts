@@ -16,7 +16,7 @@ export const addGameResult = async (
   winUserId: string,
   loseUserId: string,
 ) => {
-  await fetch(`${getBaseUrl()}/guilds/${guildId}/games`, {
+  const response = await fetch(`${getBaseUrl()}/guilds/${guildId}/games`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -26,6 +26,11 @@ export const addGameResult = async (
       loseUserId,
     }),
   });
+
+  return (await response.json()) as {
+    winUser: UserRating;
+    loseUser: UserRating;
+  };
 };
 
 export const fetchGuildLeaderboard = async (guildId: string) => {

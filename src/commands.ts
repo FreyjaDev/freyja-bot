@@ -7,12 +7,11 @@ import { addGameResult, fetchGuildLeaderboard, fetchUserRating } from './http';
 
 const ratingCommand = new SlashCommandBuilder()
   .setName('rating')
-  .setDescription('Get the rating of a user')
+  .setDescription(
+    'ユーザーのレーティング。ユーザーが指定されていない場合は実行者。',
+  )
   .addUserOption((option) =>
-    option
-      .setName('user')
-      .setDescription('The user to get the rating of')
-      .setRequired(false),
+    option.setName('user').setDescription('ユーザー').setRequired(false),
   );
 
 const ratingCommandHandler = async (
@@ -23,7 +22,7 @@ const ratingCommandHandler = async (
   const guildId = interaction.guildId;
 
   if (guildId === null) {
-    await interaction.editReply('This command can only be used in a server');
+    await interaction.editReply('このコマンドはサーバー内でのみ有効です。');
     return;
   }
 
@@ -31,14 +30,19 @@ const ratingCommandHandler = async (
 
   const userRating = await fetchUserRating(guildId, user.id);
 
-  await interaction.editReply(
-    `${user.username}'s rating is ${userRating.rating}`,
-  );
+  const embed = new EmbedBuilder().setTitle(user.displayName).addFields({
+    name: 'レーティング',
+    value: userRating.rating.toString(),
+  });
+
+  await interaction.editReply({
+    embeds: [embed.toJSON()],
+  });
 };
 
 const leaderboardCommand = new SlashCommandBuilder()
   .setName('leaderboard')
-  .setDescription('Get the leaderboard of the server');
+  .setDescription('サーバーのランキング');
 
 const leaderboardCommandHandler = async (
   interaction: ChatInputCommandInteraction,
@@ -46,44 +50,46 @@ const leaderboardCommandHandler = async (
   const guildId = interaction.guildId;
 
   if (guildId === null) {
-    await interaction.editReply('This command can only be used in a server');
+    await interaction.editReply('このコマンドはサーバー内でのみ有効です。');
     return;
   }
 
   await interaction.deferReply();
 
   const leaderboard = await fetchGuildLeaderboard(guildId);
+  const fields = await Promise.all(
+    leaderboard.slice(0, 10).map(async (userRating, index) => {
+      const user = await interaction.guild?.members.fetch(userRating.userId);
 
-  const embeds = leaderboard.slice(0, 10).map((userRating, index) => {
-    return new EmbedBuilder()
-      .setTitle(`#${index + 1} ${userRating.userId}`)
-      .setDescription(`Rating: ${userRating.rating}`)
-      .toJSON();
-  });
+      return {
+        name: `#${index + 1} ${user?.displayName ?? userRating.userId}`,
+        value: `レーティング: ${userRating.rating}`,
+      };
+    }),
+  );
+
+  const embed = new EmbedBuilder()
+    .setTitle('ランキング')
+    .setDescription(`${interaction.guild?.name}の上位10名`)
+    .addFields(fields);
 
   await interaction.editReply({
-    embeds,
+    embeds: [embed.toJSON()],
   });
 };
 
 const gameCommand = new SlashCommandBuilder()
   .setName('game')
-  .setDescription('Get the results of the latest games')
+  .setDescription('ゲームコマンド')
   .addSubcommand((subcommand) =>
     subcommand
       .setName('add')
-      .setDescription('Add a game result')
+      .setDescription('ゲーム結果の登録')
       .addUserOption((option) =>
-        option
-          .setName('winner')
-          .setDescription('The winner of the game')
-          .setRequired(true),
+        option.setName('winner').setDescription('勝者').setRequired(true),
       )
       .addUserOption((option) =>
-        option
-          .setName('loser')
-          .setDescription('The loser of the game')
-          .setRequired(true),
+        option.setName('loser').setDescription('敗者').setRequired(true),
       ),
   );
 
@@ -91,21 +97,49 @@ const gameCommandHandler = async (interaction: ChatInputCommandInteraction) => {
   const subcommand = interaction.options.getSubcommand();
 
   if (subcommand === 'add') {
-    const winner = interaction.options.getUser('winner')!;
-    const loser = interaction.options.getUser('loser')!;
+    const winner = interaction.options.getUser('winner', true);
+    const loser = interaction.options.getUser('loser', true);
+
+    if (winner.id === loser.id) {
+      await interaction.editReply(
+        '同一ユーザー同士のゲーム結果は登録できません。',
+      );
+      return;
+    }
+
+    if (winner.bot || loser.bot) {
+      await interaction.editReply(
+        'Botをレーティング対象にすることはできません。',
+      );
+      return;
+    }
 
     const guildId = interaction.guildId;
 
     if (guildId === null) {
-      await interaction.editReply('This command can only be used in a server');
+      await interaction.editReply('このコマンドはサーバー内でのみ有効です。');
       return;
     }
 
     await interaction.deferReply();
 
-    await addGameResult(guildId, winner.id, loser.id);
+    const result = await addGameResult(guildId, winner.id, loser.id);
 
-    await interaction.editReply('Game result added');
+    const embed = new EmbedBuilder().setTitle('結果').addFields([
+      {
+        name: winner.displayName,
+        value: `レーティング: => ${result.winUser.rating}`,
+      },
+      {
+        name: loser.displayName,
+        value: `レーティング: => ${result.loseUser.rating}`,
+      },
+    ]);
+
+    await interaction.editReply({
+      content: '登録に成功しました。',
+      embeds: [embed.toJSON()],
+    });
   }
 };
 
