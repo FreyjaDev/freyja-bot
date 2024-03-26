@@ -1,5 +1,5 @@
 import { Client, REST, Routes } from 'discord.js';
-import { jsonCommands } from './commands';
+import { commandExecutor, jsonCommands } from './commands';
 import yargs from 'yargs';
 
 const args = yargs(process.argv.slice(2))
@@ -58,6 +58,18 @@ const launchBot = async (token: string) => {
 
   client.on('ready', () => {
     console.log(`Logged in as ${client.user?.tag}!`);
+  });
+
+  client.on('interactionCreate', async (interaction) => {
+    if (!interaction.isChatInputCommand()) return;
+
+    try {
+      await commandExecutor(interaction);
+    } catch (e) {
+      await interaction.followUp({
+        content: 'There was an error while executing this command!',
+      });
+    }
   });
 
   await client.login(token);
