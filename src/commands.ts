@@ -22,7 +22,7 @@ const ratingCommandHandler = async (
   const guildId = interaction.guildId;
 
   if (guildId === null) {
-    await interaction.editReply('このコマンドはサーバー内でのみ有効です。');
+    await interaction.reply('このコマンドはサーバー内でのみ有効です。');
     return;
   }
 
@@ -57,7 +57,7 @@ const leaderboardCommandHandler = async (
   const guildId = interaction.guildId;
 
   if (guildId === null) {
-    await interaction.editReply('このコマンドはサーバー内でのみ有効です。');
+    await interaction.reply('このコマンドはサーバー内でのみ有効です。');
     return;
   }
 
@@ -108,23 +108,19 @@ const gameCommandHandler = async (interaction: ChatInputCommandInteraction) => {
     const loser = interaction.options.getUser('loser', true);
 
     if (winner.id === loser.id) {
-      await interaction.editReply(
-        '同一ユーザー同士のゲーム結果は登録できません。',
-      );
+      await interaction.reply('同一ユーザー同士のゲーム結果は登録できません。');
       return;
     }
 
     if (winner.bot || loser.bot) {
-      await interaction.editReply(
-        'Botをレーティング対象にすることはできません。',
-      );
+      await interaction.reply('Botをレーティング対象にすることはできません。');
       return;
     }
 
     const guildId = interaction.guildId;
 
     if (guildId === null) {
-      await interaction.editReply('このコマンドはサーバー内でのみ有効です。');
+      await interaction.reply('このコマンドはサーバー内でのみ有効です。');
       return;
     }
 
