@@ -30,6 +30,13 @@ const ratingCommandHandler = async (
 
   const userRating = await fetchUserRating(guildId, user.id);
 
+  if (userRating === undefined) {
+    await interaction.editReply(
+      'ユーザーのレーティングが見つかりませんでした。レーティングはゲーム結果の登録に伴って登録されます。',
+    );
+    return;
+  }
+
   const embed = new EmbedBuilder().setTitle(user.displayName).addFields({
     name: 'レーティング',
     value: userRating.rating.toString(),
