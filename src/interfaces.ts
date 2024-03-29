@@ -5,4 +5,5 @@ export interface UserRating {
   rating: number;
   createdAt: string;
   updatedAt: string;
+  rank?: number;
 }

@@ -37,10 +37,16 @@ const ratingCommandHandler = async (
     return;
   }
 
-  const embed = new EmbedBuilder().setTitle(user.displayName).addFields({
-    name: 'レーティング',
-    value: userRating.rating.toString(),
-  });
+  const embed = new EmbedBuilder().setTitle(user.displayName).addFields([
+    {
+      name: '順位',
+      value: userRating.rank?.toString() ?? '不明',
+    },
+    {
+      name: 'レーティング',
+      value: userRating.rating.toString(),
+    },
+  ]);
 
   await interaction.editReply({
     embeds: [embed.toJSON()],
