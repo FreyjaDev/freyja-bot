@@ -66,9 +66,16 @@ const launchBot = async (token: string) => {
     try {
       await commandExecutor(interaction);
     } catch (e) {
-      await interaction.followUp({
-        content: 'There was an error while executing this command!',
-      });
+      const content = 'There was an error while executing this command!';
+      if (interaction.replied || interaction.deferred) {
+        await interaction.followUp({
+          content,
+        });
+      } else {
+        await interaction.reply({
+          content,
+        });
+      }
     }
   });
 
